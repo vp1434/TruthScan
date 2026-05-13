@@ -114,7 +114,10 @@ const DashboardHeader: React.FC<{ toggleSidebar?: () => void }> = ({ toggleSideb
                   ))}
                 </div>
                 <div className="border-t border-white/[0.05] px-4 py-3">
-                  <button className="text-xs text-indigo-400 hover:text-indigo-300 w-full text-center transition-colors">
+                  <button 
+                    onClick={() => { setNotifOpen(false); navigate('/history'); }}
+                    className="text-xs text-indigo-400 hover:text-indigo-300 w-full text-center transition-colors"
+                  >
                     View all notifications
                   </button>
                 </div>
