@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, Link as LinkIcon, FileText, Search, Loader2 } from 'lucide-react';
 import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 
 const InputSection: React.FC = () => {
+  const { user } = useAuth();
+  const token = user?.token;
   const [activeTab, setActiveTab] = useState<'text' | 'url'>('text');
   const [inputText, setInputText] = useState('');
   const [url, setUrl] = useState('');
@@ -15,18 +18,23 @@ const InputSection: React.FC = () => {
   const handleAnalyze = async () => {
     setLoading(true);
     setResult(null);
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    
     try {
       if (file) {
         const formData = new FormData();
         formData.append('file', file);
         const response = await axios.post('http://localhost:8000/analyze-file', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
+          headers: { 
+            ...headers,
+            'Content-Type': 'multipart/form-data' 
+          }
         });
         setResult(response.data);
       } else {
         const endpoint = activeTab === 'text' ? '/predict' : '/analyze-url';
         const payload = activeTab === 'text' ? { text: inputText } : { url };
-        const response = await axios.post(`http://localhost:8000${endpoint}`, payload);
+        const response = await axios.post(`http://localhost:8000${endpoint}`, payload, { headers });
         setResult(response.data);
       }
     } catch (error) {

@@ -17,7 +17,7 @@ const Footer: React.FC = () => {
               Empowering individuals with AI-driven news verification to combat misinformation and promote truth in the digital age.
             </p>
           </div>
-          
+
           <div>
             <h4 className="font-bold mb-6 text-white">Product</h4>
             <ul className="space-y-4 text-sm text-gray-400">
@@ -43,9 +43,9 @@ const Footer: React.FC = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="flex flex-col md:flex-row justify-between items-center gap-6 pt-8 border-t border-white/5 text-xs text-gray-500">
-          <p>© 2026 TruthScan AI. All rights reserved.</p>
+          <p>© 2026 TruthScan. All rights reserved.</p>
           <div className="flex gap-8">
             <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
             <a href="#" className="hover:text-white transition-colors">Terms of Service</a>

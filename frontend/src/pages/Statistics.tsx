@@ -2,24 +2,28 @@ import React, { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, CartesianGrid } from 'recharts';
 import { TrendingUp, Shield, AlertCircle, Target } from 'lucide-react';
 import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 
 const Statistics: React.FC = () => {
+  const { user } = useAuth();
+  const token = user?.token;
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetch = async () => {
       try {
-        const res = await axios.get('http://localhost:8000/dashboard-stats');
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        const res = await axios.get('http://localhost:8000/dashboard-stats', { headers });
         setStats(res.data);
       } catch {
-        setStats({ total: 1248, fake_count: 516, real_count: 732, accuracy: 0.924 });
+        setStats({ total: 0, fake_count: 0, real_count: 0, accuracy: 92.4 });
       } finally {
         setLoading(false);
       }
     };
     fetch();
-  }, []);
+  }, [token]);
 
   const weeklyData = [
     { day: 'Mon', real: 42, fake: 18 }, { day: 'Tue', real: 58, fake: 24 },
@@ -39,8 +43,8 @@ const Statistics: React.FC = () => {
   ];
 
   const pieData = [
-    { name: 'Real', value: stats?.real_count || 732, color: '#10b981' },
-    { name: 'Fake', value: stats?.fake_count || 516, color: '#ef4444' },
+    { name: 'Real', value: stats?.real_count || 0, color: '#10b981' },
+    { name: 'Fake', value: stats?.fake_count || 0, color: '#ef4444' },
   ];
 
   if (loading) return <div className="flex items-center justify-center min-h-screen text-gray-400 bg-[#0B1120]">Loading statistics...</div>;
@@ -55,10 +59,10 @@ const Statistics: React.FC = () => {
       {/* KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         {[
-          { icon: TrendingUp, label: 'Total Analyses', value: stats?.total || 1248, color: 'text-blue-400', bg: 'bg-blue-500/10' },
-          { icon: Shield, label: 'Real News', value: stats?.real_count || 732, color: 'text-green-400', bg: 'bg-green-500/10' },
-          { icon: AlertCircle, label: 'Fake News', value: stats?.fake_count || 516, color: 'text-red-400', bg: 'bg-red-500/10' },
-          { icon: Target, label: 'Accuracy', value: `${((stats?.accuracy || 0.924) * 100).toFixed(1)}%`, color: 'text-purple-400', bg: 'bg-purple-500/10' },
+          { icon: TrendingUp, label: 'Total Analyses', value: stats?.total || 0, color: 'text-blue-400', bg: 'bg-blue-500/10' },
+          { icon: Shield, label: 'Real News', value: stats?.real_count || 0, color: 'text-green-400', bg: 'bg-green-500/10' },
+          { icon: AlertCircle, label: 'Fake News', value: stats?.fake_count || 0, color: 'text-red-400', bg: 'bg-red-500/10' },
+          { icon: Target, label: 'Accuracy', value: `${(stats?.accuracy || 92.4).toFixed(1)}%`, color: 'text-purple-400', bg: 'bg-purple-500/10' },
         ].map((s, i) => (
           <div key={i} className="dashboard-card p-5 rounded-xl flex items-center gap-4">
             <div className={`w-11 h-11 rounded-full ${s.bg} flex items-center justify-center shrink-0`}>
@@ -102,7 +106,7 @@ const Statistics: React.FC = () => {
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute flex flex-col items-center pointer-events-none">
-              <span className="text-lg font-bold text-white">{stats?.total || 1248}</span>
+              <span className="text-lg font-bold text-white">{stats?.total || 0}</span>
               <span className="text-[10px] text-gray-400">Total</span>
             </div>
           </div>

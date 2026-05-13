@@ -66,7 +66,6 @@ const Settings: React.FC = () => {
   const [weeklyReport, setWeeklyReport]     = useState(false);
   const [saving, setSaving]                 = useState(false);
   const [saved, setSaved]                   = useState(false);
-  const [saveError, setSaveError]           = useState('');
 
   /* password change state */
   const [currentPwd, setCurrentPwd] = useState('');
@@ -83,7 +82,7 @@ const Settings: React.FC = () => {
   const CONFIRM_PHRASE = 'DELETE MY ACCOUNT';
 
   const handleSave = async () => {
-    setSaving(true); setSaveError('');
+    setSaving(true);
     await new Promise(r => setTimeout(r, 1100));
     setSaving(false); setSaved(true);
     setTimeout(() => setSaved(false), 3000);

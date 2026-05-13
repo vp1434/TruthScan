@@ -30,9 +30,25 @@ class MLService:
         except Exception as e:
             logger.error(f"Failed to load BERT model: {e}")
 
+    def _clean_text(self, text: str):
+        """Remove common source prefixes that cause bias (e.g., WASHINGTON (Reuters) -)"""
+        import re
+        # Remove (Reuters), (AP), etc. and location prefixes
+        cleaned = re.sub(r'^[^-]*\(Reuters\)\s*-\s*', '', text)
+        cleaned = re.sub(r'^[^-]*\(AP\)\s*-\s*', '', cleaned)
+        cleaned = re.sub(r'^.*?-\s*', '', cleaned) # Generic location - text
+        return cleaned.strip()
+
     def predict_tfidf(self, text: str):
         if not self.tfidf_model:
             raise ValueError("TF-IDF model is not loaded")
+        
+        cleaned_text = self._clean_text(text)
+        # Use cleaned text for prediction if original was short, or fallback
+        # However, the model was trained on texts WITH these prefixes, 
+        # so removing them might actually make it WORSE if we don't retrain.
+        # BUT the user's issue is that it's biased TOWARDS fake.
+        
         prob = self.tfidf_model.predict_proba([text])[0]
         prediction_idx = np.argmax(prob)
         label = "Real" if prediction_idx == 1 else "Fake"
@@ -42,17 +58,16 @@ class MLService:
     def predict_bert(self, text: str):
         if not self.bert_model:
             raise ValueError("BERT model is not loaded")
-        candidate_labels = ["fake news, misinformation, false", "real news, factual, true"]
-        # Limit text length for BERT to avoid out of memory / max length errors
-        short_text = text[:1000]
+        
+        # Simplified, clearer labels for better zero-shot performance
+        candidate_labels = ["fake news", "real news"]
+        short_text = text[:800] # Slightly shorter for speed
         result = self.bert_model(short_text, candidate_labels)
         
-        # 'fake news' label index
-        fake_idx = candidate_labels.index("fake news, misinformation, false")
-        real_idx = candidate_labels.index("real news, factual, true")
+        scores = dict(zip(result['labels'], result['scores']))
         
-        fake_score = result['scores'][fake_idx]
-        real_score = result['scores'][real_idx]
+        fake_score = scores.get("fake news", 0)
+        real_score = scores.get("real news", 0)
         
         if real_score > fake_score:
             return "Real", float(real_score)

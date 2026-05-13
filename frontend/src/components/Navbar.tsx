@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Search, Moon, Sun, Menu, Home, History, LayoutDashboard, Info, Mail, X, LogOut, User } from 'lucide-react';
+import { Search, Moon, Sun, Menu, Home, LayoutDashboard, Info, Mail, X, LogOut, User } from 'lucide-react';
 import { useDarkMode } from '../context/DarkModeContext';
 import { useAuth } from '../context/AuthContext';
 
 const navLinks = [
   { to: '/', label: 'Home', icon: Home, exact: true },
-  { to: '/history', label: 'History', icon: History, exact: false },
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, exact: false },
   { to: '/about', label: 'About', icon: Info, exact: false },
   { to: '/contact', label: 'Contact', icon: Mail, exact: false },

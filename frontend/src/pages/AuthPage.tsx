@@ -164,7 +164,7 @@ const AuthPage: React.FC = () => {
                 S
               </div>
               <div>
-                <p className="text-xs font-semibold text-white">Sarah Mitchell</p>
+                <p className="text-xs font-semibold text-white">Bikki Kumar Pandit</p>
                 <p className="text-[10px] text-gray-500">Editor-in-Chief, DailyVerify</p>
               </div>
             </div>

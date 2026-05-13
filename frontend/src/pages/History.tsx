@@ -1,17 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Clock, Shield, AlertTriangle, Trash2, Search } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
+import { Search, Clock, Shield, AlertTriangle, Trash2 } from 'lucide-react';
 
 const History: React.FC = () => {
+  const { user } = useAuth();
+  const token = user?.token;
   const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 
   useEffect(() => {
     const fetchHistory = async () => {
+      if (!token) {
+        setLoading(false);
+        return;
+      }
       try {
-        const res = await axios.get('http://localhost:8000/history?limit=50');
+        const headers = { Authorization: `Bearer ${token}` };
+        const res = await axios.get('http://localhost:8000/history?limit=50', { headers });
         setHistory(res.data);
       } catch {
         // Fallback demo data
@@ -28,7 +36,7 @@ const History: React.FC = () => {
       }
     };
     fetchHistory();
-  }, []);
+  }, [token]);
 
   const filtered = history.filter(item =>
     item.text?.toLowerCase().includes(search.toLowerCase())

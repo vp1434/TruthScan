@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Users, Zap, FileText, ShieldCheck } from 'lucide-react';
+import axios from 'axios';
 
 const StatCard = ({ icon: Icon, label, value, iconBg, iconColor }: { icon: any, label: string, value: string, iconBg: string, iconColor: string }) => (
   <div className="glass p-5 rounded-[20px] flex items-center gap-4 min-w-[160px] bg-[#111827] border-white/5 hover:border-white/10 transition-colors">
@@ -15,6 +16,26 @@ const StatCard = ({ icon: Icon, label, value, iconBg, iconColor }: { icon: any, 
 );
 
 const Hero: React.FC = () => {
+  const [stats, setStats] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchGlobalStats = async () => {
+      try {
+        const response = await axios.get('http://localhost:8000/global-stats');
+        setStats(response.data);
+      } catch (err) {
+        console.error('Failed to fetch global stats', err);
+      }
+    };
+    fetchGlobalStats();
+  }, []);
+
+  // Use real data from backend
+  const newsAnalyzed = stats ? stats.total.toLocaleString() : '...';
+  const accuracy = stats ? `${stats.accuracy}%` : '...';
+  const users = stats ? stats.happy_users.toLocaleString() : '...';
+  const avgDetection = stats ? `${stats.avg_detection}s` : '...';
+
   return (
     <section className="pt-32 pb-20 px-6">
       <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
@@ -32,10 +53,10 @@ const Hero: React.FC = () => {
           </p>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-max">
-            <StatCard icon={FileText} label="News Analyzed" value="25K+" iconBg="bg-blue-500/10" iconColor="text-blue-500" />
-            <StatCard icon={ShieldCheck} label="Accuracy" value="95.6%" iconBg="bg-green-500/10" iconColor="text-green-500" />
-            <StatCard icon={Users} label="Happy Users" value="10K+" iconBg="bg-purple-500/10" iconColor="text-purple-500" />
-            <StatCard icon={Zap} label="Avg. Detection" value="2.3s" iconBg="bg-yellow-500/10" iconColor="text-yellow-500" />
+            <StatCard icon={FileText} label="News Analyzed" value={newsAnalyzed} iconBg="bg-blue-500/10" iconColor="text-blue-500" />
+            <StatCard icon={ShieldCheck} label="Accuracy" value={accuracy} iconBg="bg-green-500/10" iconColor="text-green-500" />
+            <StatCard icon={Users} label="Happy Users" value={users} iconBg="bg-purple-500/10" iconColor="text-purple-500" />
+            <StatCard icon={Zap} label="Avg. Detection" value={avgDetection} iconBg="bg-yellow-500/10" iconColor="text-yellow-500" />
           </div>
         </motion.div>
 

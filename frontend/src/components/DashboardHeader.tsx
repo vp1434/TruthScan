@@ -4,7 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const DashboardHeader: React.FC = () => {
+const DashboardHeader: React.FC<{ toggleSidebar?: () => void }> = ({ toggleSidebar }) => {
   const { user, logout }       = useAuth();
   const navigate               = useNavigate();
   const [dropOpen, setDropOpen] = useState(false);
@@ -36,11 +36,14 @@ const DashboardHeader: React.FC = () => {
   ];
 
   return (
-    <header className="h-16 border-b border-white/[0.06] flex items-center justify-between px-6 md:px-8 bg-[#070d1c]/95 backdrop-blur-md sticky top-0 z-20">
+    <header className="h-16 border-b border-slate-200 dark:border-white/[0.06] flex items-center justify-between px-6 md:px-8 bg-white/95 dark:bg-[#070d1c]/95 backdrop-blur-md sticky top-0 z-20 transition-colors duration-300">
 
       {/* Left: hamburger (mobile only) */}
       <div className="flex items-center gap-4">
-        <button className="text-gray-400 hover:text-white transition-colors lg:hidden">
+        <button 
+          onClick={toggleSidebar}
+          className="text-gray-400 hover:text-white transition-colors lg:hidden p-1.5 rounded-lg hover:bg-white/5"
+        >
           <Menu className="w-5 h-5" />
         </button>
       </div>
@@ -53,7 +56,7 @@ const DashboardHeader: React.FC = () => {
             type="text"
             value={searchVal}
             onChange={e => setSearchVal(e.target.value)}
-            className="block w-full pl-10 pr-8 py-2 border border-white/[0.07] rounded-xl bg-white/[0.04] text-gray-300 placeholder-gray-600 focus:outline-none focus:border-blue-500/40 focus:bg-white/[0.06] text-sm transition-all"
+            className="block w-full pl-10 pr-8 py-2 border border-slate-200 dark:border-white/[0.07] rounded-xl bg-slate-50 dark:bg-white/[0.04] text-slate-900 dark:text-gray-300 placeholder-slate-400 dark:placeholder-gray-600 focus:outline-none focus:border-blue-500/40 focus:bg-white dark:focus:bg-white/[0.06] text-sm transition-all"
             placeholder="Search anything…"
           />
           <AnimatePresence>
@@ -90,22 +93,22 @@ const DashboardHeader: React.FC = () => {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 8, scale: 0.95 }}
                 transition={{ duration: 0.15 }}
-                className="absolute right-0 top-12 w-80 bg-[#0d1628] border border-white/[0.08] rounded-2xl shadow-2xl overflow-hidden z-50"
+                className="absolute right-0 top-12 w-80 bg-white dark:bg-[#0d1628] border border-slate-200 dark:border-white/[0.08] rounded-2xl shadow-2xl overflow-hidden z-50"
               >
-                <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.05]">
-                  <span className="text-sm font-semibold text-white">Notifications</span>
+                <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-white/[0.05]">
+                  <span className="text-sm font-semibold text-slate-900 dark:text-white">Notifications</span>
                   <span className="text-[10px] text-blue-400 font-medium bg-blue-500/10 border border-blue-500/20 rounded-full px-2 py-0.5">
                     {notifications.length} new
                   </span>
                 </div>
                 <div className="divide-y divide-white/[0.04] max-h-72 overflow-y-auto">
                   {notifications.map(n => (
-                    <button key={n.id} className="w-full flex items-start gap-3 px-4 py-3.5 hover:bg-white/[0.03] transition-colors text-left">
+                    <button key={n.id} className="w-full flex items-start gap-3 px-4 py-3.5 hover:bg-slate-50 dark:hover:bg-white/[0.03] transition-colors text-left">
                       <div className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${n.dot}`} />
                       <div className="min-w-0">
-                        <p className="text-xs font-semibold text-white">{n.title}</p>
-                        <p className="text-[11px] text-gray-500 mt-0.5 truncate">{n.desc}</p>
-                        <p className="text-[10px] text-gray-700 mt-1">{n.time}</p>
+                        <p className="text-xs font-semibold text-slate-900 dark:text-white">{n.title}</p>
+                        <p className="text-[11px] text-slate-500 dark:text-gray-500 mt-0.5 truncate">{n.desc}</p>
+                        <p className="text-[10px] text-slate-400 dark:text-gray-700 mt-1">{n.time}</p>
                       </div>
                     </button>
                   ))}
@@ -132,10 +135,10 @@ const DashboardHeader: React.FC = () => {
             </div>
             {/* Name */}
             <div className="hidden md:block text-left min-w-0">
-              <div className="text-xs font-semibold text-white leading-tight truncate max-w-[120px]">
+              <div className="text-xs font-semibold text-slate-900 dark:text-white leading-tight truncate max-w-[120px]">
                 {user?.name || 'Guest'}
               </div>
-              <div className="text-[10px] text-gray-600 truncate max-w-[120px]">
+              <div className="text-[10px] text-slate-500 dark:text-gray-600 truncate max-w-[120px]">
                 {user?.email || 'Not signed in'}
               </div>
             </div>
@@ -152,14 +155,14 @@ const DashboardHeader: React.FC = () => {
                 className="absolute right-0 top-12 w-56 bg-[#0d1628] border border-white/[0.08] rounded-2xl shadow-2xl overflow-hidden z-50"
               >
                 {/* User info */}
-                <div className="px-4 py-3.5 border-b border-white/[0.05]">
+                <div className="px-4 py-3.5 border-b border-slate-100 dark:border-white/[0.05]">
                   <div className="flex items-center gap-3">
                     <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-xs font-bold text-white shrink-0">
                       {initials}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-xs font-bold text-white truncate">{user?.name || 'Guest'}</p>
-                      <p className="text-[10px] text-gray-500 truncate">{user?.email || '-'}</p>
+                      <p className="text-xs font-bold text-slate-900 dark:text-white truncate">{user?.name || 'Guest'}</p>
+                      <p className="text-[10px] text-slate-500 dark:text-gray-500 truncate">{user?.email || '-'}</p>
                     </div>
                   </div>
                 </div>

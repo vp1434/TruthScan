@@ -1,7 +1,7 @@
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routes import predict_routes, stats_routes, auth_routes
+from routes import predict_routes, stats_routes, auth_routes, chatbot_routes
 from utils.cache import setup_cache
 from utils.logger import get_logger
 import uvicorn
@@ -22,6 +22,7 @@ app.add_middleware(
 app.include_router(predict_routes.router)
 app.include_router(stats_routes.router)
 app.include_router(auth_routes.router)
+app.include_router(chatbot_routes.router)
 
 @app.on_event("startup")
 async def startup_event():
