@@ -30,7 +30,7 @@ const Navbar: React.FC = () => {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 glass px-6 py-3">
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-slate-200 dark:border-white/10 glass px-6 py-3 transition-colors">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 cursor-pointer shrink-0">
@@ -40,7 +40,7 @@ const Navbar: React.FC = () => {
               </svg>
             </div>
             <div>
-              <span className="text-xl font-bold tracking-tight text-white block leading-tight">TruthScan</span>
+              <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white block leading-tight">TruthScan</span>
               <span className="text-[10px] text-gray-400 block leading-none">Fake News Detector</span>
             </div>
           </Link>
@@ -96,10 +96,14 @@ const Navbar: React.FC = () => {
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
                   className="flex items-center gap-2 pl-1 pr-3 py-1 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 transition-colors"
                 >
-                  <div className="w-7 h-7 rounded-full bg-indigo-500 flex items-center justify-center text-xs font-bold text-white">
-                    {user.name[0].toUpperCase()}
+                  <div className="w-7 h-7 rounded-full bg-indigo-500 flex items-center justify-center text-xs font-bold text-white overflow-hidden shrink-0 shadow-sm">
+                    {user.avatar ? (
+                      <img src={user.avatar} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      user.name[0].toUpperCase()
+                    )}
                   </div>
-                  <span className="text-xs font-medium text-gray-200 hidden md:block">{user.name.split(' ')[0]}</span>
+                  <span className="text-xs font-medium text-slate-700 dark:text-gray-200 hidden md:block">{user.name.split(' ')[0]}</span>
                 </button>
 
                 {userMenuOpen && (

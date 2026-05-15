@@ -10,6 +10,7 @@ import About from './pages/About';
 import Contact from './pages/Contact';
 import AuthPage from './pages/AuthPage';
 import Dashboard from './pages/Dashboard';
+import Analysis from './pages/Analysis';
 import History from './pages/History';
 import SavedArticles from './pages/SavedArticles';
 import Statistics from './pages/Statistics';
@@ -36,6 +37,7 @@ function App() {
             {/* Dashboard pages — Sidebar Layout */}
             <Route element={<DashboardLayout />}>
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/analyze" element={<Analysis />} />
               <Route path="/history" element={<History />} />
               <Route path="/saved" element={<SavedArticles />} />
               <Route path="/statistics" element={<Statistics />} />

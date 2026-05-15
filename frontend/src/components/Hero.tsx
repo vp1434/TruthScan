@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Users, Zap, FileText, ShieldCheck } from 'lucide-react';
 import axios from 'axios';
+import { NetworkGlobe } from './NetworkGlobe';
 
 const StatCard = ({ icon: Icon, label, value, iconBg, iconColor }: { icon: any, label: string, value: string, iconBg: string, iconColor: string }) => (
   <div className="glass p-5 rounded-[20px] flex items-center gap-4 min-w-[160px] bg-[#111827] border-white/5 hover:border-white/10 transition-colors">
@@ -64,18 +65,22 @@ const Hero: React.FC = () => {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="relative"
+          className="relative h-[500px]"
         >
-          <div className="relative flex items-center justify-start pl-0">
+          <div className="relative flex items-center justify-center w-full h-full">
+            {/* 3D Background effect */}
+            <NetworkGlobe />
+            
             {/* Soft glow background */}
-            <div className="absolute inset-0 bg-blue-500/10 blur-3xl rounded-full scale-75 pointer-events-none"></div>
+            <div className="absolute inset-0 bg-blue-500/10 blur-3xl rounded-full scale-75 pointer-events-none z-0"></div>
+            
             <motion.img
               src="/src/fakenews.png"
               alt="Fake News Detection Illustration"
               initial={{ opacity: 0, scale: 0.92, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.2 }}
-              className="relative w-full max-w-lg drop-shadow-2xl select-none translate-x-32"
+              className="relative w-full max-w-lg drop-shadow-2xl select-none translate-x-12 z-10 mix-blend-screen"
             />
           </div>
         </motion.div>

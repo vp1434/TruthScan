@@ -59,7 +59,7 @@ const SavedArticles: React.FC = () => {
               <p className="text-sm text-gray-200 line-clamp-3 mb-3">{item.text}</p>
               <div className="flex justify-between text-[10px] text-gray-500">
                 <span>Confidence: {(item.confidence * 100).toFixed(1)}%</span>
-                <span>{new Date(item.timestamp).toLocaleDateString()}</span>
+                <span>{item.timestamp ? new Date(item.timestamp).toLocaleDateString() : 'Unknown Date'}</span>
               </div>
             </motion.div>
           ))}

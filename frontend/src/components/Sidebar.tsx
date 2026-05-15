@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 
 const navItems = [
   { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-  { name: 'Analyze News', path: '/', icon: Shield },
+  { name: 'Analyze News', path: '/analyze', icon: Shield },
   { name: 'Saved Articles', path: '/saved', icon: Bookmark },
   { name: 'Statistics', path: '/statistics', icon: BarChart3 },
   { name: 'Sources', path: '/sources', icon: Radio },
@@ -85,7 +85,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setOpen }) => {
           <Crown className="w-5 h-5 text-yellow-500 mx-auto mb-2" />
           <h4 className="text-slate-900 dark:text-white font-bold text-xs mb-1">Upgrade to Pro</h4>
           <p className="text-[10px] text-slate-500 dark:text-gray-400 mb-3 leading-relaxed">Get advanced insights, priority support and more.</p>
-          <button className="w-full py-2 rounded-lg bg-blue-600 text-white text-xs font-bold hover:bg-blue-500 transition-colors">
+          <button 
+            onClick={() => navigate('/upgrade')}
+            className="w-full py-2 rounded-lg bg-blue-600 text-white text-xs font-bold hover:bg-blue-500 transition-colors shadow-lg shadow-blue-600/20"
+          >
             Upgrade Now
           </button>
         </div>
@@ -108,8 +111,12 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setOpen }) => {
         {user && (
           <div className="mt-2 flex items-center justify-between px-2 py-2">
             <div className="flex items-center gap-2 min-w-0">
-              <div className="w-7 h-7 rounded-full bg-purple-500 flex items-center justify-center text-xs font-bold text-white shrink-0">
-                {user.name[0]}
+              <div className="w-7 h-7 rounded-full bg-indigo-500 flex items-center justify-center text-xs font-bold text-white shrink-0 overflow-hidden">
+                {user.avatar ? (
+                  <img src={user.avatar} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  user.name[0].toUpperCase()
+                )}
               </div>
             <div className="min-w-0">
                 <p className="text-xs font-semibold text-slate-900 dark:text-white truncate">{user.name}</p>

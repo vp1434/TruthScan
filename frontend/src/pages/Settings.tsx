@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   User, Bell, Lock, Shield, Moon, Sun, Trash2, Save, Loader2,
@@ -54,18 +54,40 @@ type Tab = typeof tabs[number]['id'];
 /* ─────────────── Main Component ─────────────── */
 const Settings: React.FC = () => {
   const { darkMode, toggleDarkMode } = useDarkMode();
-  const { user, logout }             = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const navigate                     = useNavigate();
 
   const [activeTab, setActiveTab]           = useState<Tab>('profile');
-  const [name, setName]                     = useState(user?.name || 'Aditya Kumar');
-  const [email]                             = useState(user?.email || 'admin@example.com');
+  const [saving, setSaving]                 = useState(false);
+  const [name, setName]                     = useState(user?.name || '');
+  const [email, setEmail]                   = useState(user?.email || '');
+  const [avatar, setAvatar]                 = useState<string | null>(user?.avatar || null);
+  const fileInputRef                        = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (user) {
+      setName(user.name);
+      setEmail(user.email);
+      if (user.avatar) setAvatar(user.avatar);
+    }
+  }, [user]);
   const [notifications, setNotifications]   = useState(true);
   const [emailAlerts, setEmailAlerts]       = useState(false);
   const [mobileAlerts, setMobileAlerts]     = useState(true);
   const [weeklyReport, setWeeklyReport]     = useState(false);
-  const [saving, setSaving]                 = useState(false);
   const [saved, setSaved]                   = useState(false);
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const newAvatar = event.target?.result as string;
+        setAvatar(newAvatar);
+        updateUser({ avatar: newAvatar });
+      };
+      reader.readAsDataURL(e.target.files[0]);
+    }
+  };
 
   /* password change state */
   const [currentPwd, setCurrentPwd] = useState('');
@@ -84,6 +106,7 @@ const Settings: React.FC = () => {
   const handleSave = async () => {
     setSaving(true);
     await new Promise(r => setTimeout(r, 1100));
+    updateUser({ name });
     setSaving(false); setSaved(true);
     setTimeout(() => setSaved(false), 3000);
   };
@@ -156,20 +179,25 @@ const Settings: React.FC = () => {
                   <div className="p-6 space-y-5">
                     {/* Avatar */}
                     <div className="flex items-center gap-5">
-                      <div className="relative group">
-                        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-xl font-bold text-white shadow-[0_0_24px_rgba(99,102,241,0.3)]">
-                          {initials}
-                        </div>
-                        <button className="absolute inset-0 rounded-2xl bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                        {avatar ? (
+                          <img src={avatar} alt="Avatar" className="w-16 h-16 rounded-2xl object-cover shadow-[0_0_24px_rgba(99,102,241,0.3)]" />
+                        ) : (
+                          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-xl font-bold text-white shadow-[0_0_24px_rgba(99,102,241,0.3)]">
+                            {initials}
+                          </div>
+                        )}
+                        <div className="absolute inset-0 rounded-2xl bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                           <Camera className="w-4 h-4 text-white" />
-                        </button>
+                        </div>
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-white">{user?.name || 'Aditya Kumar'}</p>
-                        <p className="text-xs text-gray-500 mt-0.5">{user?.email || 'admin@example.com'}</p>
-                        <button className="mt-2 text-xs text-indigo-400 hover:text-indigo-300 transition-colors flex items-center gap-1">
+                        <p className="text-sm font-semibold text-white">{user?.name || ''}</p>
+                        <p className="text-xs text-gray-500 mt-0.5">{user?.email || ''}</p>
+                        <button onClick={() => fileInputRef.current?.click()} className="mt-2 text-xs text-indigo-400 hover:text-indigo-300 transition-colors flex items-center gap-1">
                           <Camera className="w-3 h-3" /> Change avatar
                         </button>
+                        <input type="file" accept="image/*" ref={fileInputRef} onChange={handleAvatarChange} className="hidden" />
                       </div>
                     </div>
 
@@ -299,6 +327,20 @@ const Settings: React.FC = () => {
                     ))}
                   </div>
                 </Card>
+
+                {/* ───── UPGRADE TO PRO ───── */}
+                <div className="mt-6 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-[0_0_24px_rgba(79,70,229,0.2)]">
+                  <div className="text-white">
+                    <h3 className="font-bold text-lg mb-1 text-white">Upgrade to Pro</h3>
+                    <p className="text-sm text-blue-100">Get advanced insights, priority support and more.</p>
+                  </div>
+                  <button 
+                    onClick={() => navigate('/upgrade')}
+                    className="px-6 py-2.5 bg-white text-indigo-600 font-bold rounded-xl hover:bg-slate-50 transition-colors shrink-0"
+                  >
+                    Upgrade Now
+                  </button>
+                </div>
               </motion.div>
             )}
 

@@ -133,8 +133,12 @@ const DashboardHeader: React.FC<{ toggleSidebar?: () => void }> = ({ toggleSideb
             className="flex items-center gap-2.5 pl-2 pr-3 py-1.5 rounded-xl hover:bg-white/[0.04] border border-transparent hover:border-white/[0.06] transition-all group"
           >
             {/* Avatar */}
-            <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center font-bold text-xs text-white shadow-[0_0_10px_rgba(99,102,241,0.3)] shrink-0">
-              {initials}
+            <div className="h-8 w-8 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center font-bold text-xs text-white shadow-[0_0_10px_rgba(99,102,241,0.3)] shrink-0 overflow-hidden">
+              {user?.avatar ? (
+                <img src={user.avatar} alt="" className="w-full h-full object-cover" />
+              ) : (
+                initials
+              )}
             </div>
             {/* Name */}
             <div className="hidden md:block text-left min-w-0">
@@ -160,8 +164,12 @@ const DashboardHeader: React.FC<{ toggleSidebar?: () => void }> = ({ toggleSideb
                 {/* User info */}
                 <div className="px-4 py-3.5 border-b border-slate-100 dark:border-white/[0.05]">
                   <div className="flex items-center gap-3">
-                    <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-xs font-bold text-white shrink-0">
-                      {initials}
+                    <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-xs font-bold text-white shrink-0 overflow-hidden">
+                      {user?.avatar ? (
+                        <img src={user.avatar} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        initials
+                      )}
                     </div>
                     <div className="min-w-0">
                       <p className="text-xs font-bold text-slate-900 dark:text-white truncate">{user?.name || 'Guest'}</p>

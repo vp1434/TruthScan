@@ -5,12 +5,12 @@ import FloatingChat from './FloatingChat';
 
 const MainLayout: React.FC = () => {
   return (
-    <div className="min-h-screen bg-[#0A0F1C] text-white selection:bg-purple-500/30 flex flex-col font-sans">
+    <div className="min-h-screen selection:bg-purple-500/30 flex flex-col font-sans transition-colors duration-300">
       <Navbar />
       <main className="flex-1">
         <Outlet />
       </main>
-      <footer className="py-6 px-10 border-t border-white/5 bg-[#0A0F1C] mt-auto flex flex-col md:flex-row items-center justify-between text-xs text-gray-500">
+      <footer className="py-6 px-10 border-t border-slate-200 dark:border-white/5 mt-auto flex flex-col md:flex-row items-center justify-between text-xs text-gray-500 transition-colors">
         <div>© 2026 TruthScan. All rights reserved.</div>
         <div className="flex gap-6 mt-4 md:mt-0">
           <a href="#" className="hover:text-gray-300">Privacy Policy</a>

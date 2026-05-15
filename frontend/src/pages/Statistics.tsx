@@ -13,8 +13,7 @@ const Statistics: React.FC = () => {
   useEffect(() => {
     const fetch = async () => {
       try {
-        const headers = token ? { Authorization: `Bearer ${token}` } : {};
-        const res = await axios.get('http://localhost:8000/dashboard-stats', { headers });
+        const res = await axios.get('http://localhost:8000/global-stats');
         setStats(res.data);
       } catch {
         setStats({ total: 0, fake_count: 0, real_count: 0, accuracy: 92.4 });
@@ -23,7 +22,7 @@ const Statistics: React.FC = () => {
       }
     };
     fetch();
-  }, [token]);
+  }, []);
 
   const weeklyData = [
     { day: 'Mon', real: 42, fake: 18 }, { day: 'Tue', real: 58, fake: 24 },

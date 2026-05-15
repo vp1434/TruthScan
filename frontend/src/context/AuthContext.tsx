@@ -6,6 +6,7 @@ interface User {
   name: string;
   email: string;
   token: string;
+  avatar?: string;
 }
 
 interface AuthContextType {
@@ -14,6 +15,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
+  updateUser: (data: Partial<User>) => void;
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -22,6 +24,7 @@ export const AuthContext = createContext<AuthContextType>({
   login: async () => {},
   register: async () => {},
   logout: () => {},
+  updateUser: () => {},
 });
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -75,8 +78,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     delete axios.defaults.headers.common['Authorization'];
   };
 
+  const updateUser = (data: Partial<User>) => {
+    setUser(prev => {
+      if (!prev) return null;
+      const updated = { ...prev, ...data };
+      localStorage.setItem('truthscan_user', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

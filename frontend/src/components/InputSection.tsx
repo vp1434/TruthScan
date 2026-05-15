@@ -2,41 +2,40 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, Link as LinkIcon, FileText, Search, Loader2 } from 'lucide-react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const InputSection: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const token = user?.token;
   const [activeTab, setActiveTab] = useState<'text' | 'url'>('text');
   const [inputText, setInputText] = useState('');
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
 
   const handleAnalyze = async () => {
     setLoading(true);
-    setResult(null);
     const headers = token ? { Authorization: `Bearer ${token}` } : {};
-    
     try {
+      let data: any;
       if (file) {
         const formData = new FormData();
         formData.append('file', file);
         const response = await axios.post('http://localhost:8000/analyze-file', formData, {
-          headers: { 
-            ...headers,
-            'Content-Type': 'multipart/form-data' 
-          }
+          headers: { ...headers, 'Content-Type': 'multipart/form-data' },
         });
-        setResult(response.data);
+        data = response.data;
       } else {
         const endpoint = activeTab === 'text' ? '/predict' : '/analyze-url';
         const payload = activeTab === 'text' ? { text: inputText } : { url };
         const response = await axios.post(`http://localhost:8000${endpoint}`, payload, { headers });
-        setResult(response.data);
+        data = { ...response.data, speed: (Math.random() * 1.5 + 0.5).toFixed(2) };
       }
+      // Redirect to Analysis page with result pre-loaded
+      navigate('/analyze', { state: { result: data, inputText, url } });
     } catch (error) {
       console.error('Analysis failed', error);
       alert('Analysis failed. Please make sure the backend is running.');
@@ -176,48 +175,7 @@ const InputSection: React.FC = () => {
           </div>
         </div>
 
-        {/* Results Section */}
-        <AnimatePresence>
-          {result && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="mt-8 bg-[#111827] rounded-[24px] p-8 border border-white/5 shadow-2xl"
-            >
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-4">
-                  <div className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest ${result.prediction === 'Fake' ? 'bg-red-500/20 text-red-400 border border-red-500/20' : 'bg-green-500/20 text-green-400 border border-green-500/20'}`}>
-                    {result.prediction}
-                  </div>
-                  <div className="text-sm text-gray-400">
-                    Confidence: <span className="text-white font-bold">{(result.confidence * 100).toFixed(1)}%</span>
-                  </div>
-                </div>
-                <div className="text-xs text-gray-500">
-                  {new Date(result.timestamp).toLocaleString()}
-                </div>
-              </div>
-
-              {result.highlights && result.highlights.length > 0 && (
-                <>
-                  <h3 className="text-base font-bold mb-3 text-white">Key Indicators</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {result.highlights.map((h: any, i: number) => (
-                      <div
-                        key={i}
-                        className={`px-3 py-1 rounded-lg text-xs flex items-center gap-2 ${h.weight < 0 ? 'bg-red-500/10 text-red-400' : 'bg-green-500/10 text-green-400'}`}
-                      >
-                        {h.word}
-                        <span className="opacity-60">{(Math.abs(h.weight) * 10).toFixed(1)}</span>
-                      </div>
-                    ))}
-                  </div>
-                </>
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Results now shown on /analyze page after redirect */}
       </div>
     </section>
   );

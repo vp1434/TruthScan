@@ -1,8 +1,9 @@
 import os
 import joblib
 import numpy as np
-from transformers import pipeline
+import re
 from utils.logger import get_logger
+from utils.text_cleaner import clean_text
 
 logger = get_logger(__name__)
 
@@ -20,58 +21,47 @@ class MLService:
         else:
             logger.warning(f"TF-IDF model not found at {tfidf_path}.")
 
-        # Load BERT Zero-Shot or specific Fake News model
-        try:
-            logger.info("Loading BERT model...")
-            # We use a zero-shot classifier as a functional fallback for the advanced model requirement
-            # In a real deployed scenario, this would be a fine-tuned roberta-fake-news model
-            self.bert_model = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
-            logger.info("BERT model loaded successfully.")
-        except Exception as e:
-            logger.error(f"Failed to load BERT model: {e}")
-
-    def _clean_text(self, text: str):
-        """Remove common source prefixes that cause bias (e.g., WASHINGTON (Reuters) -)"""
-        import re
-        # Remove (Reuters), (AP), etc. and location prefixes
-        cleaned = re.sub(r'^[^-]*\(Reuters\)\s*-\s*', '', text)
-        cleaned = re.sub(r'^[^-]*\(AP\)\s*-\s*', '', cleaned)
-        cleaned = re.sub(r'^.*?-\s*', '', cleaned) # Generic location - text
-        return cleaned.strip()
+    def _check_clickbait_patterns(self, text: str) -> bool:
+        """Rule-based engine to boost Fake probability on obvious spam/clickbait."""
+        patterns = [
+            r'\bshocking\b', r'\bclick now\b', r'\blimited offer\b', 
+            r'\bmiracle cure\b', r'\bwin \₹', r'\baccount number\b', r'\botp\b', 
+            r'\bhurry up\b', r'\bcongratulations\b', r'\byou have won\b'
+        ]
+        text_lower = text.lower()
+        for p in patterns:
+            if re.search(p, text_lower):
+                return True
+        return False
 
     def predict_tfidf(self, text: str):
         if not self.tfidf_model:
             raise ValueError("TF-IDF model is not loaded")
         
-        cleaned_text = self._clean_text(text)
-        # Use cleaned text for prediction if original was short, or fallback
-        # However, the model was trained on texts WITH these prefixes, 
-        # so removing them might actually make it WORSE if we don't retrain.
-        # BUT the user's issue is that it's biased TOWARDS fake.
+        # Ensure we use the exact same preprocessing as during training
+        cleaned_text = clean_text(text)
         
-        prob = self.tfidf_model.predict_proba([text])[0]
-        prediction_idx = np.argmax(prob)
-        label = "Real" if prediction_idx == 1 else "Fake"
-        confidence = float(prob[prediction_idx])
-        return label, confidence, self.tfidf_model
-
-    def predict_bert(self, text: str):
-        if not self.bert_model:
-            raise ValueError("BERT model is not loaded")
+        # Get raw probabilities (Class 0: Fake, Class 1: Real)
+        prob = self.tfidf_model.predict_proba([cleaned_text])[0]
+        fake_prob = float(prob[0])
+        real_prob = float(prob[1])
         
-        # Simplified, clearer labels for better zero-shot performance
-        candidate_labels = ["fake news", "real news"]
-        short_text = text[:800] # Slightly shorter for speed
-        result = self.bert_model(short_text, candidate_labels)
+        # Apply custom clickbait / spam heuristic boost (lowered to 10%)
+        if self._check_clickbait_patterns(text):
+            fake_prob += 0.10
+            # Normalize
+            total = fake_prob + real_prob
+            fake_prob = fake_prob / total
+            real_prob = real_prob / total
         
-        scores = dict(zip(result['labels'], result['scores']))
-        
-        fake_score = scores.get("fake news", 0)
-        real_score = scores.get("real news", 0)
-        
-        if real_score > fake_score:
-            return "Real", float(real_score)
+        # Standard 0.50 threshold for unbiased results
+        if fake_prob >= 0.50:
+            label = "Fake"
+            confidence = fake_prob
         else:
-            return "Fake", float(fake_score)
+            label = "Real"
+            confidence = real_prob
+            
+        return label, confidence, self.tfidf_model
 
 ml_service = MLService()

@@ -6,8 +6,10 @@ import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 
 const formatRelativeTime = (dateStr: string) => {
+  if (!dateStr) return 'Unknown';
   const normalizedDateStr = dateStr.endsWith('Z') ? dateStr : `${dateStr}Z`;
   const date = new Date(normalizedDateStr);
+  if (isNaN(date.getTime())) return 'Invalid date';
   const now = new Date();
   const diffInSecs = Math.floor((now.getTime() - date.getTime()) / 1000);
   if (diffInSecs < 60) return 'Just now';
@@ -78,9 +80,9 @@ const Dashboard: React.FC = () => {
   const maxKeyword = keywordData.length > 0 ? Math.max(...keywordData.map((k: any) => k.count)) : 1;
 
   const recentActivity = history.slice(0, 5).map((h: any) => ({
-    title: h.text.substring(0, 50) + '...',
+    title: (h.text || h.url || 'Analyzed Content').substring(0, 50) + '...',
     time: formatRelativeTime(h.timestamp),
-    type: h.prediction
+    type: h.prediction || 'Unknown'
   }));
 
   if (!token) {
@@ -184,16 +186,22 @@ const Dashboard: React.FC = () => {
         <div className="dashboard-card p-6 rounded-xl shadow-sm border border-slate-200 dark:border-white/5 bg-white dark:bg-[#111827]">
           <h3 className="font-bold text-slate-900 dark:text-white text-sm mb-4">News Distribution</h3>
           <div className="relative flex items-center justify-center h-44">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie data={pieData} cx="50%" cy="50%" innerRadius={55} outerRadius={72} paddingAngle={2} dataKey="value" stroke="none">
-                  {pieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="absolute flex flex-col items-center pointer-events-none">
+            {stats?.total > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={pieData} cx="50%" cy="50%" innerRadius={55} outerRadius={72} paddingAngle={2} dataKey="value" stroke="none">
+                    {pieData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center text-xs text-gray-500 z-10 bg-[#111827]">
+                No data available
+              </div>
+            )}
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
               <span className="text-xl font-bold text-slate-900 dark:text-white">{stats?.total?.toLocaleString() ?? '0'}</span>
               <span className="text-[10px] text-slate-500 dark:text-gray-400">Total</span>
             </div>
@@ -266,7 +274,7 @@ const Dashboard: React.FC = () => {
                   <tr><td colSpan={5} className="px-6 py-10 text-center text-gray-500">Loading...</td></tr>
                 ) : history.length === 0 ? (
                   <tr><td colSpan={5} className="px-6 py-10 text-center text-gray-500">No analyses yet. Start by checking some news!</td></tr>
-                ) : history.map((item, i) => (
+                ) : history.slice(0, 10).map((item, i) => (
                   <tr key={item.id || i} className="hover:bg-slate-50 dark:hover:bg-white/3 transition-colors text-xs">
                     <td className="px-6 py-3.5 text-slate-700 dark:text-gray-200 max-w-[240px] truncate">{item.text}</td>
                     <td className="px-6 py-3.5">

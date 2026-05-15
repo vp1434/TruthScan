@@ -8,7 +8,7 @@ const DashboardLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="flex h-screen bg-[#0B1120] text-white font-sans overflow-hidden">
+    <div className="flex h-screen font-sans overflow-hidden transition-colors duration-300">
       {/* Mobile Sidebar Backdrop */}
       {sidebarOpen && (
         <div 
@@ -21,7 +21,7 @@ const DashboardLayout: React.FC = () => {
       
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <DashboardHeader toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-        <main className="flex-1 overflow-y-auto bg-[#0B1120]">
+        <main className="flex-1 overflow-y-auto">
           <Outlet />
         </main>
       </div>

@@ -43,11 +43,14 @@ const History: React.FC = () => {
   );
 
   const formatTime = (ts: string) => {
-    const diff = Math.floor((Date.now() - new Date(ts).getTime()) / 1000);
+    if (!ts) return 'Unknown';
+    const date = new Date(ts);
+    if (isNaN(date.getTime())) return 'Invalid Date';
+    const diff = Math.floor((Date.now() - date.getTime()) / 1000);
     if (diff < 60) return `${diff}s ago`;
     if (diff < 3600) return `${Math.floor(diff / 60)} mins ago`;
     if (diff < 86400) return `${Math.floor(diff / 3600)} hrs ago`;
-    return new Date(ts).toLocaleDateString();
+    return date.toLocaleDateString();
   };
 
   return (
